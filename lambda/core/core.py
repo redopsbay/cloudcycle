@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import boto3
+import botocore
 import os
 
 class Core:
@@ -11,7 +12,7 @@ class Core:
     SecondSuffix = "s"
     
     
-def GenerateEC2Client() -> boto3.botocore.client.EC2:
+def GenerateEC2Client() -> botocore.client:
     """
         Generate EC2 client
     """

@@ -3,7 +3,7 @@
 import os
 import boto3
 from datetime import datetime, timedelta
-from core.core import Core
+from core.core import Core, GenerateEC2Client
 from dateutil.tz import tzutc
 
 class EC2:
@@ -53,22 +53,22 @@ class EC2:
         """
         
         if self.LifeCycleTagValue[-1:] == Core.DaySuffix:
-            self.LifeCycle = self.LaunchTime + timedelta(days=self.LifeCycleTagValue[:-1])
+            self.LifeCycle = self.LaunchTime + timedelta(days=int(self.LifeCycleTagValue[:-1]))
         
         elif self.LifeCycleTagValue[-1:] == Core.HourSuffix:
-            self.LifeCycle = self.LaunchTime + timedelta(hours=self.LifeCycleTagValue[:-1])
+            self.LifeCycle = self.LaunchTime + timedelta(hours=int(self.LifeCycleTagValue[:-1]))
         
         elif self.LifeCycleTagValue[-1:] == Core.MinuteSuffix:
-            self.LifeCycle = self.LaunchTime + timedelta(minutes=self.LifeCycleTagValue[:-1])
+            self.LifeCycle = self.LaunchTime + timedelta(minutes=int(self.LifeCycleTagValue[:-1]))
         
         elif self.LifeCycleTagValue[-1:] == Core.SecondSuffix:
-            self.LifeCycle = self.LaunchTime + timedelta(seconds=self.LifeCycleTagValue[:-1])
+            self.LifeCycle = self.LaunchTime + timedelta(seconds=int(self.LifeCycleTagValue[:-1]))
         
         else:
             raise Exception("Unknown suffix")
         
         
-        self.ForTermination = self.LaunchTime > datetime.now(tzutc())
+        self.ForTermination = self.LifeCycle < datetime.now(tzutc())
         
         return self.ForTermination
         
@@ -96,10 +96,10 @@ class EC2Instances:
         if Instance is None:
             raise Exception("Missing Argument 'Instance'")
         
-        if isinstance(EC2, Instance):
+        if isinstance(Instance, EC2):
             self.Instances.append(Instance)
             
-    def SetupInstancesForTermination(self) -> None:
+    def SetupInstancesForTermination(self) -> bool:
         """
             Create a list of instances for termination.
         """
@@ -108,23 +108,31 @@ class EC2Instances:
             ForTermination = Instance.ValidateForTermination()
             if ForTermination:
                 self.InstancesForTermination.append(Instance)
+                
+        if len(self.InstancesForTermination) < 0:
+            return False
+        else:
+            return True
     
     def CleanUp(self) -> None:
         """
             Starts the cleanup process.
         """
         instance_ids = []
-        client = Core.GenerateEC2Client()
+        client = GenerateEC2Client()
         for instance in self.InstancesForTermination:
             if instance.ForTermination:
                 instance_ids.append(instance.GetInstanceId())
         
         response = client.terminate_instances(
-            InstaceIds=instance_ids
+            InstanceIds=instance_ids
         )
         
-        for terminating_instance in response:
-            print(f"InstanceId: {terminating_instance["InstanceId"]}, Status: {terminating_instance["CurrentState"]["Name"]}, PreviousState: {terminating_instance["PreviousState"]["Name"]}")
+        for terminating_instance in response["TerminatingInstances"]:
+            instance_id = terminating_instance["InstanceId"]
+            current_state = terminating_instance["CurrentState"]["Name"]
+            previous_state = terminating_instance["PreviousState"]["Name"]
+            print(f"InstanceId: {instance_id}, Status: {current_state}, PreviousState: {previous_state}")
                 
 
 def GetInstances() -> EC2Instances:
@@ -133,7 +141,7 @@ def GetInstances() -> EC2Instances:
     Containing EC2 instance details.
     """
     
-    client = Core.GenerateEC2Client()
+    client = GenerateEC2Client()
         
     instances = EC2Instances()
     
