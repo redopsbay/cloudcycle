@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  localstack:
+    image: localstack/localstack:3.4.0
+    ports:
+      - "4566:4566"
+      - "8080:8080"
+    environment:
+      - SERVICES=${SERVICES-}
+      - DEBUG=${DEBUG- }
+      - "${LOCALSTACK_VOLUME_DIR:-./volume}:/var/lib/localstack"
+      - DATA_DIR=${DATA_DIR-/data }
+      - PERSISTENCE=${PERSISTENCE-}
+      - DNS_ADDRESS=0
+      - LAMBDA_EXECUTOR=${LAMBDA_EXECUTOR-docker-reuse }
+      - LAMBDA_RUNTIME_ENVIRONMENT_TIMEOUT=300
+      - KINESIS_ERROR_PROBABILITY=${KINESIS_ERROR_PROBABILITY- }
+      - DOCKER_HOST=unix:///var/run/docker.sock
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
