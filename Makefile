@@ -4,10 +4,10 @@ RELEASE_DIR=release
 INSTALL-DEPS:
 	wget --verbose https://go.dev/dl/$(GO_VERSION)
 	tar xf $(GO_VERSION)
-	mv -v go /usr/local/
+	mv -v go ~/
 
 build:
-	echo "export PATH=$PATH:/usr/local/go/bin" >> ~/.bashrc
+	echo "export PATH=$PATH:~/go/bin" >> ~/.bashrc
 	mkdir $(RELEASE_DIR)
 	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o release/bootstrap main.go
 
