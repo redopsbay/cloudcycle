@@ -14,7 +14,11 @@ jobs:
     - name: Build Release
       run: |
         make INSTALL-DEPS
-        make build
+        make
+
+    - name: Check Release folder
+      run: |
+        ls -lah /tmp/release
 
     - name: Archive Release
       uses: thedoctor0/zip-release@0.7.5
