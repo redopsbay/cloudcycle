@@ -3,8 +3,7 @@ GO_VERSION=go1.22.0.linux-amd64.tar.gz
 RELEASE_DIR=/tmp/release
 INSTALL-DEPS:
 	wget --verbose https://go.dev/dl/$(GO_VERSION)
-	tar xf $(GO_VERSION)
-	mv -v go ~/
+	tar xf $(GO_VERSION) -C ~/
 
 build:
 	export PATH=$PATH:~/go/bin
