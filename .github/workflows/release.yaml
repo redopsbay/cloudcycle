@@ -16,16 +16,20 @@ jobs:
         make INSTALL-DEPS
         make build
 
+    - name: Check Release folder
+      run: |
+        ls -lah /tmp/release
+
     - name: Archive Release
       uses: thedoctor0/zip-release@0.7.5
       with:
         type: 'zip'
-        directory: 'release'
+        directory: '/tmp/release'
         filename: 'release.zip'
         exclusions: '*.git* /*node_modules/* .editorconfig'
 
     - name: Upload Release
       uses: ncipollo/release-action@v1.12.0
       with:
-        artifacts: "release.zip"
+        artifacts: "/tmp/release/release.zip"
         token: ${{ secrets.GITHUB_TOKEN }}
