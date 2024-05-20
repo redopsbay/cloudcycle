@@ -24,10 +24,8 @@ jobs:
         filename: 'release.zip'
         exclusions: '*.git* /*node_modules/* .editorconfig'
 
-    - uses: "marvinpinto/action-automatic-releases@latest"
+    - name: Upload Release
+      uses: ncipollo/release-action@v1.12.0
       with:
-        repo_token: "${{ secrets.GITHUB_TOKEN }}"
-        automatic_release_tag: "latest"
-        prerelease: false
-        files: |
-            release.zip
+        artifacts: "release.zip"
+        token: ${{ secrets.GITHUB_TOKEN }}
