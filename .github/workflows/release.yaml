@@ -14,7 +14,7 @@ jobs:
     - name: Build Release
       run: |
         make INSTALL-DEPS
-        make
+        make build
 
     - name: Check Release folder
       run: |
