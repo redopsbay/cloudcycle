@@ -7,7 +7,7 @@ INSTALL-DEPS:
 	mv -v go ~/
 
 build:
-	echo "export PATH=$PATH:~/go/bin" >> ~/.bashrc
+	export PATH=$PATH:~/go/bin
 	mkdir $(RELEASE_DIR)
 	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o release/bootstrap main.go
 
